@@ -40,7 +40,6 @@ class GameScraper:
 
             num_games = len(new_soup.find_all('div',class_='row pb-1'))
             all_season_games = all_season_games+ list(range(base_game_num,base_game_num+num_games))
-            break
         return all_season_games
 
     def _setup(self):
@@ -74,17 +73,14 @@ class GameScraper:
             self.overall_team_info_df = pd.DataFrame(columns=['gol_game_num',
                                                     'blue_gold','blue_kills','blue_towers','blue_first_tower','blue_first_blood',
                                                     'blue_hextech_drake','blue_mountain_drake','blue_infernal_drake','blue_ocean_drake','blue_cloud_drake','blue_chemtech_drake',
-                                                    'blue_void_grubs',
-                                                    'blue_rift_herald', #TODO
+                                                    'blue_void_grubs','blue_rift_herald','blue_baron','blue_elder_drake',
                                                     'blue_plates','blue_plates_top','blue_plates_mid','blue_plates_bot',
                                                     'blue_wards_destroyed','blue_wards_placed',
                                                     'red_gold','red_kills','red_towers','red_first_tower','red_first_blood',
                                                     'red_hextech_drake','red_mountain_drake','red_infernal_drake','red_ocean_drake','red_cloud_drake','red_chemtech_drake',
-                                                    'red_void_grubs',
-                                                    'red_rift_herald', #TODO
+                                                    'red_void_grubs','red_rift_herald','red_baron','red_elder_drake',
                                                     'red_plates','red_plates_top','red_plates_mid','red_plates_bot',
-                                                    'red_wards_destroyed','red_wards_placed'
-                                                    
+                                                    'red_wards_destroyed','red_wards_placed'                              
                                                     ])
             # TODO get stats from an individual to a team level. Total deaths, assists, vision etc
             
@@ -193,42 +189,90 @@ class GameScraper:
 
         return game_champs
     
+    def _get_kill_and_tower_info(self,soup):
+        
+        blue_kills = soup.find_all('div',class_='col-12 col-sm-6')[0].find_all('div',class_ = 'col-2')[0].text.strip()
+        blue_first_blood = len(soup.find_all('div',class_='col-12 col-sm-6')[0].find_all('div',class_ = 'col-2')[0].find_all('br'))
+        blue_towers = soup.find_all('div',class_='col-12 col-sm-6')[0].find_all('div',class_ = 'col-2')[1].text.strip()
+        blue_first_tower = len(soup.find_all('div',class_='col-12 col-sm-6')[0].find_all('div',class_ = 'col-2')[1].find_all('br'))
+
+        red_kills = soup.find_all('div',class_='col-12 col-sm-6')[1].find_all('div',class_ = 'col-2')[0].text.strip()
+        red_first_blood = len(soup.find_all('div',class_='col-12 col-sm-6')[1].find_all('div',class_ = 'col-2')[0].find_all('br'))
+        red_towers = soup.find_all('div',class_='col-12 col-sm-6')[1].find_all('div',class_ = 'col-2')[1].text.strip()
+        red_first_tower = len(soup.find_all('div',class_='col-12 col-sm-6')[1].find_all('div',class_ = 'col-2')[1].find_all('br'))
+
+        return blue_kills,blue_first_blood,blue_towers,blue_first_tower,red_kills,red_first_blood,red_towers,red_first_tower
+
     def _get_drake_name(self,team,drake):
         return team+'_'+drake.strip().lower().split(' ')[0]+'_drake'
     
-    def _convert_gold(self,gold):
-        formatted_gold = int(gold[0:2] + gold[3] + '00')
+    def _convert_gold(self,gold_info):
+
+        if '.' not in gold_info:
+            gold_info = gold_info[:gold_info.index('k')] + '.0'+'k'
+
+        decimals = gold_info[gold_info.index('.')+1:-1]
+
+        formatted_gold = gold_info[:gold_info.index('.')] + decimals
+        for i in range(3-len(decimals)):
+            formatted_gold = formatted_gold + '0' 
+
         return formatted_gold
     
     def _get_ward_info(self,ward_info):
-        blue_team_wards_destroyed = int(ward_info[ward_info.rindex('data :')+8:ward_info.rindex('data :')+10])
-        blue_team_wards_placed = int(ward_info[ward_info.rindex('data :')+11:ward_info.rindex('data :')+14])
+        subset_blue_ward_info = ward_info[ward_info.rindex('data : [')+8:ward_info.rindex('data : [')+17]
+        subset_red_ward_info = ward_info[ward_info.index('data : [')+8:ward_info.index('data : [')+17]
 
-        red_team_wards_destroyed = int(ward_info[ward_info.index('data :')+8:ward_info.index('data :')+10])
-        red_team_wards_placed = int(ward_info[ward_info.index('data :')+11:ward_info.index('data :')+14])
+        blue_team_wards_destroyed= subset_blue_ward_info[:subset_blue_ward_info.index(',')]
+        blue_team_wards_placed= subset_blue_ward_info[subset_blue_ward_info.index(',')+1:subset_blue_ward_info.index(']')]
+
+        red_team_wards_destroyed= subset_red_ward_info[:subset_red_ward_info.index(',')]
+        red_team_wards_placed= subset_red_ward_info[subset_red_ward_info.index(',')+1:subset_red_ward_info.index(']')]
 
         return blue_team_wards_destroyed,blue_team_wards_placed,red_team_wards_destroyed,red_team_wards_placed
-    
+
+    def _get_herald_info(self,team_actions):
+        rift_herald_count = 0
+        for a in team_actions:
+            if a.find('img').get('alt') == 'Rift Herald':
+                rift_herald_count = rift_herald_count + 1
+
+        return rift_herald_count
+
     def _get_overall_team_stats(self,soup):
         team_stats = dict()
 
+        # Initialzie everything to zero, as everything includes a count value
         for col in self.overall_team_info_df.columns:
             team_stats[col] = 0
 
-        team_stats['blue_kills'] = soup.find_all('div',class_='col-12 col-sm-6')[0].find_all('div',class_ = 'col-2')[0].text.strip()
-        team_stats['blue_towers'] = soup.find_all('div',class_='col-12 col-sm-6')[0].find_all('div',class_ = 'col-2')[1].text.strip()
-
-        drake_info = soup.find_all('div',class_='col-12 col-sm-6')[0].find_all('div',class_ = 'col-2')[2].find_all('img')[1:]
-        for d in drake_info:
-            drake_name = self._get_drake_name('blue',d.get('alt'))
-            team_stats[drake_name] = team_stats[drake_name] + 1
-
-        team_stats['blue_barons'] = soup.find_all('div',class_='col-12 col-sm-6')[0].find_all('div',class_ = 'col-2')[3].text.strip()
+        #_________________________________BLUE TEAM STATS BEGIN____________________________
 
         gold_info = soup.find_all('div',class_='col-12 col-sm-6')[0].find_all('div',class_ = 'col-2')[4].text.strip()
 
+        # Convert the gold info from __._k format to an int in thousands
         team_stats['blue_gold'] = self._convert_gold(gold_info)
 
+        blue_kills,blue_first_blood,blue_towers,blue_first_tower,red_kills,red_first_blood,red_towers,red_first_tower = self._get_kill_and_tower_info(soup)
+        team_stats['blue_kills'] = blue_kills
+        team_stats['blue_first_blood'] = blue_first_blood
+        team_stats['blue_towers'] = blue_towers
+        team_stats['blue_first_tower'] = blue_first_tower
+
+        # Contains all info about drakes taken for blue team
+        drake_info = soup.find_all('div',class_='col-12 col-sm-6')[0].find_all('div',class_ = 'col-2')[2].find_all('img')[1:]
+        for d in drake_info:
+            # The drake name is converted into a column name to be increment the count of the drake for that team
+            drake_name = self._get_drake_name('blue',d.get('alt'))
+            team_stats[drake_name] = team_stats[drake_name] + 1
+
+        team_stats['blue_baron'] = soup.find_all('div',class_='col-12 col-sm-6')[0].find_all('div',class_ = 'col-2')[3].text.strip()
+
+        # Rift Herald info
+        blue_team_actions = soup.find_all('span',class_ = 'blue_action')
+        team_stats['blue_rift_herald'] = self._get_herald_info(blue_team_actions)
+
+        # Void grub and plate info
         team_stats['blue_void_grubs']  = int(soup.find_all('div',class_='row pb-3')[1].find_all('div')[1].text.strip())
         team_stats['blue_plates']  = int(soup.find_all('div',class_='row pb-3')[2].find_all('div')[1].text.strip())
         team_stats['blue_plates_top']  = int(soup.find_all('div',class_='row pb-3')[3].find_all('div')[1].text.strip())
@@ -237,25 +281,34 @@ class GameScraper:
 
         ward_info = soup.find_all('script')[-4].text
 
+        # Ward info
         blue_team_wards_destroyed,blue_team_wards_placed,red_team_wards_destroyed,red_team_wards_placed = self._get_ward_info(ward_info)
         team_stats['blue_wards_destroyed'] = blue_team_wards_destroyed
         team_stats['blue_wards_placed'] = blue_team_wards_placed
+
+        #_________________________________RED TEAM STATS BEGIN____________________________
+
+        gold_info = soup.find_all('div',class_='col-12 col-sm-6')[1].find_all('div',class_ = 'col-2')[4].text.strip()
+
+        team_stats['red_gold'] = self._convert_gold(gold_info)
+
         team_stats['red_wards_destroyed'] = red_team_wards_destroyed
         team_stats['red_wards_placed'] = red_team_wards_placed
 
-        team_stats['red_kills'] = soup.find_all('div',class_='col-12 col-sm-6')[1].find_all('div',class_ = 'col-2')[0].text.strip()
-        team_stats['red_towers'] = soup.find_all('div',class_='col-12 col-sm-6')[1].find_all('div',class_ = 'col-2')[1].text.strip()
+        team_stats['red_kills'] = red_kills
+        team_stats['red_first_blood'] = red_first_blood
+        team_stats['red_towers'] = red_towers
+        team_stats['red_first_tower'] = red_first_tower
 
         drake_info = soup.find_all('div',class_='col-12 col-sm-6')[1].find_all('div',class_ = 'col-2')[2].find_all('img')[1:]
         for d in drake_info:
             drake_name = self._get_drake_name('red',d.get('alt'))
             team_stats[drake_name] = team_stats[drake_name] + 1
 
-        team_stats['red_barons'] = soup.find_all('div',class_='col-12 col-sm-6')[1].find_all('div',class_ = 'col-2')[3].text.strip()
+        team_stats['red_baron'] = soup.find_all('div',class_='col-12 col-sm-6')[1].find_all('div',class_ = 'col-2')[3].text.strip()
 
-        gold_info = soup.find_all('div',class_='col-12 col-sm-6')[1].find_all('div',class_ = 'col-2')[4].text.strip()
-
-        team_stats['red_gold'] = self._convert_gold(gold_info)
+        red_team_actions = soup.find_all('span',class_ = 'red_action')
+        team_stats['red_rift_herald'] = self._get_herald_info(red_team_actions)
 
         team_stats['red_void_grubs']  = int(soup.find_all('div',class_='row pb-3')[1].find_all('div')[2].text.strip())
         team_stats['red_plates']  = int(soup.find_all('div',class_='row pb-3')[2].find_all('div')[2].text.strip())
@@ -287,7 +340,3 @@ class GameScraper:
                 team_stats = self._get_overall_team_stats(soup)
                 team_stats['gol_game_num'] = game_num
                 self.overall_team_info_df = pd.concat([self.overall_team_info_df,pd.DataFrame([team_stats])],ignore_index=True)
-            break
-
-
-# TODO first blood and first tower
