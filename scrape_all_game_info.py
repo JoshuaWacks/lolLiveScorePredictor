@@ -1,7 +1,8 @@
 import requests
 from bs4 import BeautifulSoup 
-
 import pandas as pd
+
+import individual_player_scraper
 
 class GameScraper:
 
@@ -16,7 +17,9 @@ class GameScraper:
     def __init__(self, league, season,season_format,year,gol_year_format,
                  scrape_game_info = False,
                  scrape_champ_select = False,
-                 scrape_team_stats = False):
+                 scrape_team_stats = False,
+                 scrape_player_stats = False
+                 ):
 
         self.league = league
         self.season = season
@@ -27,6 +30,10 @@ class GameScraper:
         self.scrape_game_info = scrape_game_info
         self.scrape_champ_select = scrape_champ_select
         self.scrape_team_stats = scrape_team_stats
+        self.scrape_player_stats = scrape_player_stats
+
+        self._setup()
+
 
     def _get_game_links_in_season(self,soup):
 
@@ -40,6 +47,7 @@ class GameScraper:
 
             num_games = len(new_soup.find_all('div',class_='row pb-1'))
             all_season_games = all_season_games+ list(range(base_game_num,base_game_num+num_games))
+            break
         return all_season_games
 
     def _setup(self):
@@ -82,8 +90,12 @@ class GameScraper:
                                                     'red_plates','red_plates_top','red_plates_mid','red_plates_bot',
                                                     'red_wards_destroyed','red_wards_placed'                              
                                                     ])
-            # TODO get stats from an individual to a team level. Total deaths, assists, vision etc
             
+        if self.scrape_player_stats:
+            self.player_scraper = individual_player_scraper.PlayerScraper()
+
+            self.player_stats_df = pd.DataFrame()
+
     def _get_game_date(self,soup):
         # Getting the date and week game was played
         obj = soup.find("div", class_="col-12 col-sm-5 text-right")
@@ -319,7 +331,7 @@ class GameScraper:
         return team_stats
 
     def scrape_info(self):
-        self._setup()
+        # self._setup()
 
         for game_num in self.all_season_games:
             print(game_num)
@@ -340,3 +352,18 @@ class GameScraper:
                 team_stats = self._get_overall_team_stats(soup)
                 team_stats['gol_game_num'] = game_num
                 self.overall_team_info_df = pd.concat([self.overall_team_info_df,pd.DataFrame([team_stats])],ignore_index=True)
+
+ 
+
+    def scrape_player_info(self):
+        # self._setup()
+        print()
+        for game_num in self.all_season_games:
+            game_info_url = F'{self.GAME_INFO_BASE_URL}{game_num}/page-fullstats/'
+            page = requests.get(game_info_url, headers=self.GAME_INFO_HEADERS)
+            soup = BeautifulSoup(page.content, 'html.parser')
+
+            player_stats = self.player_scraper.get_all_player_stats(soup,game_num)
+            self.player_stats_df = pd.concat([self.player_stats_df,player_stats],ignore_index=True)
+            
+            break
