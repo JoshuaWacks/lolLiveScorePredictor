@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 
 import individual_player_scraper
+import time
 
 class GameScraper:
 
@@ -47,7 +48,6 @@ class GameScraper:
 
             num_games = len(new_soup.find_all('div',class_='row pb-1'))
             all_season_games = all_season_games+ list(range(base_game_num,base_game_num+num_games))
-            break
         return all_season_games
 
     def _setup(self):
@@ -357,13 +357,11 @@ class GameScraper:
 
     def scrape_player_info(self):
         # self._setup()
-        print()
         for game_num in self.all_season_games:
             game_info_url = F'{self.GAME_INFO_BASE_URL}{game_num}/page-fullstats/'
             page = requests.get(game_info_url, headers=self.GAME_INFO_HEADERS)
+            time.sleep(0.1)
             soup = BeautifulSoup(page.content, 'html.parser')
 
             player_stats = self.player_scraper.get_all_player_stats(soup,game_num)
             self.player_stats_df = pd.concat([self.player_stats_df,player_stats],ignore_index=True)
-            
-            break

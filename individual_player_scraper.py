@@ -11,10 +11,10 @@ import pandas as pd
 
 class PlayerScraper:
 
-    def __init__(self):
+    def get_all_player_stats(self, overall_soup,gol_game_num):
+
         self.payer_stats_df = pd.DataFrame()
 
-    def get_all_player_stats(self, overall_soup,gol_game_num):
         self.overall_soup = overall_soup
         self.gol_game_num = gol_game_num
 
@@ -38,17 +38,17 @@ class PlayerScraper:
                     continue
 
                 if key == 'kda':
-                    self.payer_stats_df.iloc[index][key] = (self.payer_stats_df.iloc[index]['kills'] + self.payer_stats_df.iloc[index]['assists'])/ float(self.payer_stats_df.iloc[index]['deaths'])
+                    # We need to ensure there is no divide by 0
+                    self.payer_stats_df.loc[index,key] = (self.payer_stats_df.iloc[index]['kills'] + self.payer_stats_df.iloc[index]['assists'])/ max(float(self.payer_stats_df.iloc[index]['deaths']),1)
                     continue
 
                 if '%' in key:
-                    self.payer_stats_df.iloc[index][key] = float(info.text.strip()[:-1])
+                    self.payer_stats_df.loc[index,key] = float(info.text.strip()[:-1])
                     continue
 
                 if info.text.strip() == '':
-                    self.payer_stats_df.iloc[index][key] = 0
+                    self.payer_stats_df.loc[index,key] = 0
                     continue
-
-                self.payer_stats_df.iloc[index][key] = float(info.text.strip())   
+                self.payer_stats_df.loc[index,key] = float(info.text.strip())   
     
         return self.payer_stats_df
