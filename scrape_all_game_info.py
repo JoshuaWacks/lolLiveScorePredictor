@@ -360,7 +360,6 @@ class GameScraper:
         for game_num in self.all_season_games:
             game_info_url = F'{self.GAME_INFO_BASE_URL}{game_num}/page-fullstats/'
             page = requests.get(game_info_url, headers=self.GAME_INFO_HEADERS)
-            time.sleep(0.1)
             soup = BeautifulSoup(page.content, 'html.parser')
 
             player_stats = self.player_scraper.get_all_player_stats(soup,game_num)
