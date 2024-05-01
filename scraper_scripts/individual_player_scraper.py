@@ -32,6 +32,9 @@ class PlayerScraper:
         for stat in stats_table.find_all('tr')[1:]:
             key = stat.find('td').text.strip().lower()
             for index,info in enumerate(stat.find_all('td')[1:]):
+                if info.text.strip() == '':
+                    self.payer_stats_df.loc[index,key] = 0
+                    continue
 
                 if key == 'player' or key == 'role':
                     self.payer_stats_df.loc[index,key] = info.text.strip()

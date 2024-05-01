@@ -2,8 +2,7 @@ import requests
 from bs4 import BeautifulSoup 
 import pandas as pd
 
-import individual_player_scraper
-import time
+from scraper_scripts import individual_player_scraper
 
 class GameScraper:
 
@@ -51,23 +50,32 @@ class GameScraper:
         return all_season_games
 
     def _setup(self):
-        SEASON_MATCH_LIST_URL = F'{self.SEASON_MATCH_LIST_BASE_URL}{self.league}%20{self.season}%20{self.season_format}%{self.gol_year_format}/'
+        # Format for LEC link is different to LPL,LCK and LCS
+        if self.league == 'LEC':
+            SEASON_MATCH_LIST_URL = F'{self.SEASON_MATCH_LIST_BASE_URL}{self.league}%20{self.season}%20{self.season_format}%{self.gol_year_format}/'
+        else:
+            SEASON_MATCH_LIST_URL =  F'{self.SEASON_MATCH_LIST_BASE_URL}{self.league}%20{self.season}%{self.gol_year_format}/'
 
         page = requests.get(SEASON_MATCH_LIST_URL, headers=self.GAME_INFO_HEADERS)
-        soup = BeautifulSoup(page.content, 'html.parser') 
+        soup = BeautifulSoup(page.content, 'html.parser')
+        self.all_season_games = self._get_game_links_in_season(soup) #Get the gol number for all that seasons games
 
-        self.all_season_games = self._get_game_links_in_season(soup)
-
-        SEASON_OVERVIEW_URL = F'{self.SEASON_OVERVIEW_BASE_URL}{self.league}%20{self.season}%20{self.season_format}%{self.gol_year_format}/'
+        # Format for LEC link is different
+        if self.league == 'LEC':
+            SEASON_OVERVIEW_URL = F'{self.SEASON_OVERVIEW_BASE_URL}{self.league}%20{self.season}%20{self.season_format}%{self.gol_year_format}/'
+        else:
+            SEASON_OVERVIEW_URL = F'{self.SEASON_OVERVIEW_BASE_URL}{self.league}%20{self.season}%{self.gol_year_format}/'
         page = requests.get(SEASON_OVERVIEW_URL, headers=self.GAME_INFO_HEADERS)
         soup = BeautifulSoup(page.content, 'html.parser')
         
         number_of_games_in_season = int(soup.find("td", class_="text-center").text)
         print(number_of_games_in_season)
-        # assert len(self.all_season_games) == number_of_games_in_season
+
+        # Ensures we got all the games for that season
+        assert len(self.all_season_games) == number_of_games_in_season
 
         if self.scrape_game_info:
-            self.overall_game_info_df = pd.DataFrame(columns=['gol_game_num','league','season','year','date','week','patch','format','game_in_format','game_length(min)','game_length(s)','red_team','blue_team','red_team_outcome','blue_team_outcome','winner','mvp'])
+            self.match_summary_df = pd.DataFrame(columns=['gol_game_num','league','season','year','date','week','patch','format','game_in_format','game_length(min)','game_length(s)','red_team','blue_team','red_team_outcome','blue_team_outcome','winner','mvp'])
 
         if self.scrape_champ_select:
             self.champ_select_df = pd.DataFrame(columns=['gol_game_num',
@@ -78,7 +86,7 @@ class GameScraper:
                                                     ])
             
         if self.scrape_team_stats:
-            self.overall_team_info_df = pd.DataFrame(columns=['gol_game_num',
+            self.overall_game_info_df = pd.DataFrame(columns=['gol_game_num',
                                                     'blue_gold','blue_kills','blue_towers','blue_first_tower','blue_first_blood',
                                                     'blue_hextech_drake','blue_mountain_drake','blue_infernal_drake','blue_ocean_drake','blue_cloud_drake','blue_chemtech_drake',
                                                     'blue_void_grubs','blue_rift_herald','blue_baron','blue_elder_drake',
@@ -255,7 +263,7 @@ class GameScraper:
         team_stats = dict()
 
         # Initialzie everything to zero, as everything includes a count value
-        for col in self.overall_team_info_df.columns:
+        for col in self.overall_game_info_df.columns:
             team_stats[col] = 0
 
         #_________________________________BLUE TEAM STATS BEGIN____________________________
@@ -284,28 +292,30 @@ class GameScraper:
         blue_team_actions = soup.find_all('span',class_ = 'blue_action')
         team_stats['blue_rift_herald'] = self._get_herald_info(blue_team_actions)
 
-        # Void grub and plate info
-        team_stats['blue_void_grubs']  = int(soup.find_all('div',class_='row pb-3')[1].find_all('div')[1].text.strip())
-        team_stats['blue_plates']  = int(soup.find_all('div',class_='row pb-3')[2].find_all('div')[1].text.strip())
-        team_stats['blue_plates_top']  = int(soup.find_all('div',class_='row pb-3')[3].find_all('div')[1].text.strip())
-        team_stats['blue_plates_mid']  = int(soup.find_all('div',class_='row pb-3')[4].find_all('div')[1].text.strip())
-        team_stats['blue_plates_bot']  = int(soup.find_all('div',class_='row pb-3')[5].find_all('div')[1].text.strip())
+        try:
+            # Void grub and plate info
+            team_stats['blue_void_grubs']  = int(soup.find_all('div',class_='row pb-3')[1].find_all('div')[1].text.strip())
+            team_stats['blue_plates']  = int(soup.find_all('div',class_='row pb-3')[2].find_all('div')[1].text.strip())
+            team_stats['blue_plates_top']  = int(soup.find_all('div',class_='row pb-3')[3].find_all('div')[1].text.strip())
+            team_stats['blue_plates_mid']  = int(soup.find_all('div',class_='row pb-3')[4].find_all('div')[1].text.strip())
+            team_stats['blue_plates_bot']  = int(soup.find_all('div',class_='row pb-3')[5].find_all('div')[1].text.strip())
 
-        ward_info = soup.find_all('script')[-4].text
+            ward_info = soup.find_all('script')[-4].text
 
-        # Ward info
-        blue_team_wards_destroyed,blue_team_wards_placed,red_team_wards_destroyed,red_team_wards_placed = self._get_ward_info(ward_info)
-        team_stats['blue_wards_destroyed'] = blue_team_wards_destroyed
-        team_stats['blue_wards_placed'] = blue_team_wards_placed
+            # Ward info
+            blue_team_wards_destroyed,blue_team_wards_placed,red_team_wards_destroyed,red_team_wards_placed = self._get_ward_info(ward_info)
+            team_stats['blue_wards_destroyed'] = blue_team_wards_destroyed
+            team_stats['blue_wards_placed'] = blue_team_wards_placed
+            team_stats['red_wards_destroyed'] = red_team_wards_destroyed
+            team_stats['red_wards_placed'] = red_team_wards_placed
+        except IndexError:
+            print('LPL missing data')
 
         #_________________________________RED TEAM STATS BEGIN____________________________
 
         gold_info = soup.find_all('div',class_='col-12 col-sm-6')[1].find_all('div',class_ = 'col-2')[4].text.strip()
 
         team_stats['red_gold'] = self._convert_gold(gold_info)
-
-        team_stats['red_wards_destroyed'] = red_team_wards_destroyed
-        team_stats['red_wards_placed'] = red_team_wards_placed
 
         team_stats['red_kills'] = red_kills
         team_stats['red_first_blood'] = red_first_blood
@@ -322,12 +332,14 @@ class GameScraper:
         red_team_actions = soup.find_all('span',class_ = 'red_action')
         team_stats['red_rift_herald'] = self._get_herald_info(red_team_actions)
 
-        team_stats['red_void_grubs']  = int(soup.find_all('div',class_='row pb-3')[1].find_all('div')[2].text.strip())
-        team_stats['red_plates']  = int(soup.find_all('div',class_='row pb-3')[2].find_all('div')[2].text.strip())
-        team_stats['red_plates_top']  = int(soup.find_all('div',class_='row pb-3')[3].find_all('div')[2].text.strip())
-        team_stats['red_plates_mid']  = int(soup.find_all('div',class_='row pb-3')[4].find_all('div')[2].text.strip())
-        team_stats['red_plates_bot']  = int(soup.find_all('div',class_='row pb-3')[5].find_all('div')[2].text.strip())
-
+        try:
+            team_stats['red_void_grubs']  = int(soup.find_all('div',class_='row pb-3')[1].find_all('div')[2].text.strip())
+            team_stats['red_plates']  = int(soup.find_all('div',class_='row pb-3')[2].find_all('div')[2].text.strip())
+            team_stats['red_plates_top']  = int(soup.find_all('div',class_='row pb-3')[3].find_all('div')[2].text.strip())
+            team_stats['red_plates_mid']  = int(soup.find_all('div',class_='row pb-3')[4].find_all('div')[2].text.strip())
+            team_stats['red_plates_bot']  = int(soup.find_all('div',class_='row pb-3')[5].find_all('div')[2].text.strip())
+        except IndexError:
+            print('LPL missing data')
         return team_stats
 
     def scrape_info(self):
@@ -341,26 +353,23 @@ class GameScraper:
 
             if self.scrape_game_info:
                 new_record = self._get_game_info(game_num,soup)
-                self.overall_game_info_df = pd.concat([self.overall_game_info_df,pd.DataFrame([new_record])],ignore_index=True)
+                self.match_summary_df = pd.concat([self.match_summary_df,pd.DataFrame([new_record])],ignore_index=True)
             
             if self.scrape_champ_select:
-                game_champs = self._get_champs(game_num,soup)
+                game_champs = self._get_champs(soup)
                 game_champs['gol_game_num'] = game_num
                 self.champ_select_df = pd.concat([self.champ_select_df,pd.DataFrame([game_champs])],ignore_index=True)
 
             if self.scrape_team_stats:
                 team_stats = self._get_overall_team_stats(soup)
                 team_stats['gol_game_num'] = game_num
-                self.overall_team_info_df = pd.concat([self.overall_team_info_df,pd.DataFrame([team_stats])],ignore_index=True)
+                self.overall_game_info_df = pd.concat([self.overall_game_info_df,pd.DataFrame([team_stats])],ignore_index=True)
 
- 
+            if self.scrape_player_stats:
+                game_info_url = F'{self.GAME_INFO_BASE_URL}{game_num}/page-fullstats/'
+                page = requests.get(game_info_url, headers=self.GAME_INFO_HEADERS)
+                soup = BeautifulSoup(page.content, 'html.parser')
 
-    def scrape_player_info(self):
-        # self._setup()
-        for game_num in self.all_season_games:
-            game_info_url = F'{self.GAME_INFO_BASE_URL}{game_num}/page-fullstats/'
-            page = requests.get(game_info_url, headers=self.GAME_INFO_HEADERS)
-            soup = BeautifulSoup(page.content, 'html.parser')
+                player_stats = self.player_scraper.get_all_player_stats(soup,game_num)
+                self.player_stats_df = pd.concat([self.player_stats_df,player_stats],ignore_index=True)
 
-            player_stats = self.player_scraper.get_all_player_stats(soup,game_num)
-            self.player_stats_df = pd.concat([self.player_stats_df,player_stats],ignore_index=True)
