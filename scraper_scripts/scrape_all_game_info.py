@@ -51,7 +51,7 @@ class GameScraper:
 
     def _setup(self):
         # Format for LEC link is different to LPL,LCK and LCS
-        if self.league == 'LEC':
+        if self.league == 'LEC' or self.season_format == 'PLAYOFFS':
             SEASON_MATCH_LIST_URL = F'{self.SEASON_MATCH_LIST_BASE_URL}{self.league}%20{self.season}%20{self.season_format}%{self.gol_year_format}/'
         else:
             SEASON_MATCH_LIST_URL =  F'{self.SEASON_MATCH_LIST_BASE_URL}{self.league}%20{self.season}%{self.gol_year_format}/'
@@ -61,7 +61,7 @@ class GameScraper:
         self.all_season_games = self._get_game_links_in_season(soup) #Get the gol number for all that seasons games
 
         # Format for LEC link is different
-        if self.league == 'LEC':
+        if self.league == 'LEC' or self.season_format == 'PLAYOFFS':
             SEASON_OVERVIEW_URL = F'{self.SEASON_OVERVIEW_BASE_URL}{self.league}%20{self.season}%20{self.season_format}%{self.gol_year_format}/'
         else:
             SEASON_OVERVIEW_URL = F'{self.SEASON_OVERVIEW_BASE_URL}{self.league}%20{self.season}%{self.gol_year_format}/'
