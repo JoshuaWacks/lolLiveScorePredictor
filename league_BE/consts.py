@@ -3,7 +3,7 @@ class BaseConstants:
 
     BASE_LIVE_URL_FEED = 'https://feed.lolesports.com/livestats/v1/window/{}?startingTime={}'
 
-    TIME_DELTA_S = 1
+    TIME_DELTA_S = 10
 
     CURRENT_STATIC_DATA_VERSION = "1451"
 
@@ -15,3 +15,5 @@ class BaseConstants:
     TEST_MIN_START_TIME = '2024-03-31 17:37:00+00:00'
 
     BASE_TB_POST_URL = 'https://api.eu-central-1.aws.tinybird.co/v0/events'
+
+    BASE_TB_DELETE_URL = 'https://api.eu-central-1.aws.tinybird.co/v0/datasources'

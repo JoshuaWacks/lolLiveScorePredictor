@@ -84,8 +84,11 @@ class FetchLiveData:
         self.match_data = pd.DataFrame()
 
         self.champ_index_handler = ChampIndexHandler(file_version=consts.BaseConstants.CURRENT_STATIC_DATA_VERSION)
+
         self.tb_data_source_handler = DataSource()
         self.tb_data_source_name = F"events_{self.match_id}"
+
+        self.tb_data_source_handler.delete_existing_data_source(self.tb_data_source_name)
 
     def assign_champ_index(self,df):
         for clr in ['blue', 'red']:
@@ -123,7 +126,6 @@ class FetchLiveData:
 
         data = raw_data.json()
         if self.game_start_time is None:
-
             self.fixed_info,self.game_start_time = extract_fixed_info(data)
         delta_info_prev = None
 
@@ -132,7 +134,8 @@ class FetchLiveData:
             processed_frame = self.get_dynamic_frame_data(frame,delta_info_prev)
 
             # Posting data to tb here
-            self.tb_data_source_handler.post_data(self.tb_data_source_name,processed_frame)
+            if processed_frame is not None:
+                self.tb_data_source_handler.post_data(self.tb_data_source_name,processed_frame)
 
             temp_df = pd.concat([ temp_df, processed_frame], ignore_index=True, sort=False)
             delta_info_prev = extract_changing_info(frame)
