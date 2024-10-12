@@ -76,6 +76,8 @@ class DataPipe:
         print(request_result.status_code)
         print(request_result.text)
 
+    #     Code to delete endpoint/data on completion
+
     def create_pipe_templates(self):
 
         select_all_pipe = Pipe(pipe_name=F'SELECT_ALL_PIPE_{self.data_source}',

@@ -176,9 +176,6 @@ class FetchLiveData:
             print(time_stamp)
         print(len(self.match_data))
 
-    def delete_endpoints(self):
-
-
 if __name__ == '__main__':
 
     min_start_time = pd.Timestamp(consts.BaseConstants.TEST_MIN_START_TIME)
