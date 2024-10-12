@@ -6,7 +6,7 @@ class ChampIndexHandler:
 
         self.file_version = file_version
 
-        self.file_path =  F"static_data/raw_data/gameData{self.file_version}/champs.csv"
+        self.file_path =  F"static_game_data/raw_data/gameData{self.file_version}/champs.csv"
 
         self.champ_df = pd.read_csv(self.file_path)
 

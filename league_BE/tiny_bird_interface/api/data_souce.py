@@ -27,7 +27,8 @@ class DataSource:
 
         frame_request_object = dataframe_to_pydantic(processed_frame, FrameRequest).model_dump()[0]
 
-        request_result = requests.post(consts.BaseConstants.BASE_TB_POST_URL,
+        full_url = consts.BaseConstants.BASE_TB_URL + 'events'
+        request_result = requests.post(full_url,
                           params={
                               'name': data_source_name,
                               'token': os.environ.get('TB_TOKEN'),
@@ -38,9 +39,9 @@ class DataSource:
         print(request_result.status_code)
         print(request_result.text)
 
-    def delete_existing_data_source(self,data_source_name):
+    def clear_existing_data_source(self, data_source_name):
 
-        full_delete_url = F"{consts.BaseConstants.BASE_TB_DELETE_URL}/{data_source_name}/delete"
+        full_delete_url = F"{consts.BaseConstants.BASE_TB_URL}datasources/{data_source_name}/delete"
 
         request_result = requests.post(full_delete_url,
                                        params={
@@ -52,6 +53,6 @@ class DataSource:
         if request_result.status_code == 201 and request_result.json()['job']['status'] == 'waiting':
             delete_job_url = request_result.json()['job_url']
             while poll_delete_job(delete_job_url) != 'done':
-                print("Waiting for old datasource to be delete")
+                print("Waiting for old datasource to be deleted")
 
         print(F"Old datasource {data_source_name} cleared")

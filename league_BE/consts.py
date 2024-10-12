@@ -14,6 +14,4 @@ class BaseConstants:
     # https://lol.fandom.com/wiki/LEC/2024_Season/Spring_Playoffs/Scoreboards
     TEST_MIN_START_TIME = '2024-03-31 17:37:00+00:00'
 
-    BASE_TB_POST_URL = 'https://api.eu-central-1.aws.tinybird.co/v0/events'
-
-    BASE_TB_DELETE_URL = 'https://api.eu-central-1.aws.tinybird.co/v0/datasources'
+    BASE_TB_URL = 'https://api.eu-central-1.aws.tinybird.co/v0/'

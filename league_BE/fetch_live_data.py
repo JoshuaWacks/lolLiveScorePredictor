@@ -1,6 +1,7 @@
 import consts
-from static_data.handle_static_data.champ_index_handler import ChampIndexHandler
+from static_game_data.handle_static_data.champ_index_handler import ChampIndexHandler
 from tiny_bird_interface.api.data_souce import DataSource
+from tiny_bird_interface.api.data_pipe import DataPipe
 
 import requests
 import pandas as pd
@@ -72,23 +73,40 @@ def get_unix_time(value):
     except ValueError:
         return (pd.to_datetime(value, format='%Y-%m-%dT%H:%M:%SZ') - pd.Timestamp("1970-01-01")) // pd.Timedelta('1s')
 
+
+
 class FetchLiveData:
 
     def __init__(self, match_id,match_min_start_time):
 
+        # The info on what match we are getting
         self.match_id =  match_id
         self.match_min_start_time =  match_min_start_time
 
+        # Info that does not change about the game
         self.fixed_info = None
         self.game_start_time = None
         self.match_data = pd.DataFrame()
 
+        # The fixed static data we need to compare it to
         self.champ_index_handler = ChampIndexHandler(file_version=consts.BaseConstants.CURRENT_STATIC_DATA_VERSION)
 
+        # Setting up the data source on tb
         self.tb_data_source_handler = DataSource()
         self.tb_data_source_name = F"events_{self.match_id}"
+        self.tb_data_source_handler.clear_existing_data_source(self.tb_data_source_name)
 
-        self.tb_data_source_handler.delete_existing_data_source(self.tb_data_source_name)
+        # Setting up the pipes on tb
+        self.tb_data_pipe_handler = DataPipe(self.tb_data_source_name)
+        self.create_pipes()
+
+    def create_pipes(self):
+
+        for pipe in self.tb_data_pipe_handler.all_pipes:
+
+            node_name = self.tb_data_pipe_handler.create_pipe(pipe_name=pipe.pipe_name,
+                                                  sql_transformation=pipe.sql_transformation)
+            self.tb_data_pipe_handler.enable_pipe_as_endpoint(pipe_name=pipe.pipe_name,node_name= node_name)
 
     def assign_champ_index(self,df):
         for clr in ['blue', 'red']:
@@ -158,7 +176,8 @@ class FetchLiveData:
             print(time_stamp)
         print(len(self.match_data))
 
-            #     Send data to api here
+    def delete_endpoints(self):
+
 
 if __name__ == '__main__':
 
