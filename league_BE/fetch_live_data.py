@@ -1,5 +1,6 @@
 import consts
 from static_data.handle_static_data.champ_index_handler import ChampIndexHandler
+from tiny_bird_interface.api.data_souce import DataSource
 
 import requests
 import pandas as pd
@@ -83,6 +84,8 @@ class FetchLiveData:
         self.match_data = pd.DataFrame()
 
         self.champ_index_handler = ChampIndexHandler(file_version=consts.BaseConstants.CURRENT_STATIC_DATA_VERSION)
+        self.tb_data_source_handler = DataSource()
+        self.tb_data_source_name = F"events_{self.match_id}"
 
     def assign_champ_index(self,df):
         for clr in ['blue', 'red']:
@@ -108,17 +111,15 @@ class FetchLiveData:
 
         return df
 
-    def get_timestamp_data(self,time_elapsed):
+    def get_data_at_timestamp(self,time_stamp):
 
         # An array of data at each frame
         temp_df = pd.DataFrame()
-        timestamped_url = consts.BaseConstants.BASE_LIVE_URL_FEED.format(self.match_id,
-                                                                         increment_time(self.match_min_start_time,
-                                                                                        time_elapsed))
+        timestamped_url = consts.BaseConstants.BASE_LIVE_URL_FEED.format(self.match_id,time_stamp)
         raw_data = requests.get(timestamped_url)
 
         if raw_data.status_code == 204:  # No content returned
-            return temp_df
+            return temp_df,"in_game"
 
         data = raw_data.json()
         if self.game_start_time is None:
@@ -129,23 +130,29 @@ class FetchLiveData:
         for frame in data['frames']:
 
             processed_frame = self.get_dynamic_frame_data(frame,delta_info_prev)
+
+            # Posting data to tb here
+            self.tb_data_source_handler.post_data(self.tb_data_source_name,processed_frame)
+
             temp_df = pd.concat([ temp_df, processed_frame], ignore_index=True, sort=False)
             delta_info_prev = extract_changing_info(frame)
 
+        temp_df.drop_duplicates(inplace=True)
         return temp_df,data['frames'][-1]['gameState']
 
-    def get_game_data(self):
+    def get_all_game_data(self):
 
         game_state = "in_game"
         time_elapsed = 0
-
+        time_stamp = increment_time(self.match_min_start_time,time_elapsed)
         while game_state == "in_game" or game_state == "paused":
 
-            timestamp_data,game_state = self.get_timestamp_data(time_elapsed)
+            timestamp_data,game_state = self.get_data_at_timestamp(time_stamp)
             self.match_data = pd.concat([self.match_data, timestamp_data], ignore_index=True, sort=False)
 
             time_elapsed = time_elapsed + consts.BaseConstants.TIME_DELTA_S
-
+            time_stamp = increment_time(self.match_min_start_time,time_elapsed)
+            print(time_stamp)
         print(len(self.match_data))
 
             #     Send data to api here
@@ -155,4 +162,4 @@ if __name__ == '__main__':
     min_start_time = pd.Timestamp(consts.BaseConstants.TEST_MIN_START_TIME)
 
     fld = FetchLiveData(consts.BaseConstants.TEST_MATCH_ID,min_start_time)
-    fld.get_game_data()
+    fld.get_all_game_data()
