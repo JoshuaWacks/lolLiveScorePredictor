@@ -30,7 +30,6 @@ class DataPipe:
                                        )
         return request_result.json()['pipes']
 
-
     def create_pipe(self,pipe_name,sql_transformation):
 
         for pipe in self.existing_pipes:
@@ -54,12 +53,11 @@ class DataPipe:
     # No need to run this as the data source is cleared and then the pipe will only return new data
     def delete_pipe(self,pipe_name):
 
-        full_url = consts.BaseConstants.BASE_TB_URL + 'pipes'
+        full_url = F"{consts.BaseConstants.BASE_TB_URL}pipes/{pipe_name}"
 
         request_result = requests.delete(full_url,
                                        params={
-                                           'token': os.environ.get('TB_TOKEN'),
-                                           'name': pipe_name
+                                           'token': os.environ.get('TB_TOKEN')
                                        }
                                        )
         print(request_result.status_code)
@@ -73,10 +71,26 @@ class DataPipe:
                                            'token': os.environ.get('TB_TOKEN')
                                        }
                                        )
+        print(F"Result of creating endpoint {pipe_name}\n{node_name}")
         print(request_result.status_code)
         print(request_result.text)
 
-    #     Code to delete endpoint/data on completion
+    def delete_endpoint(self,pipe_name,node_name):
+
+        full_url = F"{consts.BaseConstants.BASE_TB_URL}pipes/{pipe_name}/nodes/{node_name}/endpoint"
+        request_result = requests.delete(full_url,
+                                       params={
+                                           'token': os.environ.get('TB_TOKEN')
+                                       }
+                                       )
+
+        print(F"Result of deleting endpoint {pipe_name}\n{node_name}")
+        print(request_result.status_code)
+        print(request_result.text)
+
+    def delete_all_pipes(self):
+        for pipe in self.existing_pipes:
+            self.delete_pipe(pipe_name = pipe['name'])
 
     def create_pipe_templates(self):
 

@@ -23,6 +23,18 @@ class DataSource:
     def __init__(self):
         load_dotenv()
 
+        self.existing_data_sources = self.get_all_data_sources()
+
+    def get_all_data_sources(self):
+
+        full_url = consts.BaseConstants.BASE_TB_URL + 'datasources'
+        request_result = requests.get(full_url,
+                                       params={
+                                           'token': os.environ.get('TB_TOKEN')
+                                       }
+                                       )
+        return request_result.json()['datasources']
+
     def post_data(self,data_source_name,processed_frame):
 
         frame_request_object = dataframe_to_pydantic(processed_frame, FrameRequest).model_dump()[0]
@@ -56,3 +68,19 @@ class DataSource:
                 print("Waiting for old datasource to be deleted")
 
         print(F"Old datasource {data_source_name} cleared")
+
+    def delete_data_source(self,datasource_name):
+
+        full_url = F"{consts.BaseConstants.BASE_TB_URL}datasources/{datasource_name}"
+        request_result = requests.delete(full_url,
+                                       params={
+                                           'token': os.environ.get('TB_TOKEN')
+                                       }
+                                       )
+        print(F"Result of deleting datasource {datasource_name}")
+        print(request_result.status_code)
+        print(request_result.text)
+
+    def delete_all_datasources(self):
+        for datasource in self.existing_data_sources:
+            self.delete_data_source(datasource_name=datasource['name'])
