@@ -98,15 +98,7 @@ class FetchLiveData:
 
         # Setting up the pipes on tb
         self.tb_data_pipe_handler = DataPipe(self.tb_data_source_name)
-        self.create_pipes()
-
-    def create_pipes(self):
-
-        for pipe in self.tb_data_pipe_handler.all_pipes:
-
-            node_name = self.tb_data_pipe_handler.create_pipe(pipe_name=pipe.pipe_name,
-                                                  sql_transformation=pipe.sql_transformation)
-            self.tb_data_pipe_handler.enable_pipe_as_endpoint(pipe_name=pipe.pipe_name,node_name= node_name)
+        self.created_pipes = False
 
     def assign_champ_index(self,df):
         for clr in ['blue', 'red']:
@@ -114,7 +106,6 @@ class FetchLiveData:
                 col = F"{clr}_{pos}_champ"
 
                 df[col] = df[col].apply(lambda x: self.champ_index_handler.get_champ_index(x))
-
 
     def get_dynamic_frame_data(self,frame,delta_info_prev):
 
@@ -154,6 +145,10 @@ class FetchLiveData:
             # Posting data to tb here
             if processed_frame is not None:
                 self.tb_data_source_handler.post_data(self.tb_data_source_name,processed_frame)
+
+                if not self.created_pipes:
+                    self.tb_data_pipe_handler.create_all_pipes()
+                    self.created_pipes = True
 
             temp_df = pd.concat([ temp_df, processed_frame], ignore_index=True, sort=False)
             delta_info_prev = extract_changing_info(frame)

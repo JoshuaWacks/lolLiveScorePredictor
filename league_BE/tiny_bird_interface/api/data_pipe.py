@@ -48,7 +48,14 @@ class DataPipe:
         print(request_result.status_code)
         print(request_result.text)
 
-        return request_result.json()[0]['name']
+        return request_result.json()['nodes'][0]['name']
+
+    def create_all_pipes(self):
+        for pipe in self.all_pipes:
+
+            node_name = self.create_pipe(pipe_name=pipe.pipe_name,
+                                                  sql_transformation=pipe.sql_transformation)
+            self.enable_pipe_as_endpoint(pipe_name=pipe.pipe_name,node_name= node_name)
 
     # No need to run this as the data source is cleared and then the pipe will only return new data
     def delete_pipe(self,pipe_name):
