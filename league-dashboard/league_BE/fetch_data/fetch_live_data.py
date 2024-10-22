@@ -1,4 +1,6 @@
-import league_BE.consts
+import league_BE.consts as consts
+from league_BE.static_game_data.handle_static_data.champ_index_handler import ChampIndexHandler
+
 import requests
 import pandas as pd
 
@@ -139,7 +141,7 @@ class FetchLiveData:
         temp_df.drop_duplicates(inplace=True)
         return temp_df,data['frames'][-1]['gameState']
 
-    def get_all_game_data(self):
+    def start_capture(self):
 
         game_state = "in_game"
         time_elapsed = 0
@@ -154,9 +156,9 @@ class FetchLiveData:
             print(time_stamp)
         print(len(self.match_data))
 
-if __name__ == '__main__':
-
-    min_start_time = pd.Timestamp(consts.BaseConstants.TEST_MIN_START_TIME)
-
-    fld = FetchLiveData(consts.BaseConstants.TEST_MATCH_ID,min_start_time)
-    fld.get_all_game_data()
+# if __name__ == '__main__':
+#
+#     min_start_time = pd.Timestamp(consts.BaseConstants.TEST_MIN_START_TIME)
+#
+#     fld = FetchLiveData(consts.BaseConstants.TEST_MATCH_ID,min_start_time)
+#     fld.start_capture()
