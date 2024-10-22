@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="e13b8ed6-7898-4c87-ae74-b7fdf27b058e" name="Changes" comment="Fixed bug with not getting a node" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;JoshuaWacks&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/JoshuaWacks/lolLiveScorePredictor.git&quot;,
+    &quot;accountId&quot;: &quot;254046de-cf1b-42c0-9888-8c4259eb023d&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="2nJ5DjyXEbM8WvLBIAAbOXRwGa8" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.champ_index.executor": "Run",
+    "Python.champ_index_handler.executor": "Debug",
+    "Python.clean_up_tb.executor": "Run",
+    "Python.data_souce.executor": "Debug",
+    "Python.fetch_live_data.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "league__BE",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Users/joshu_rdnqgbx/Documents/lolLiveScorePredictor/league_BE/tiny_bird_interface/api/clean_up_tb.py",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\joshu_rdnqgbx\Documents\lolLiveScorePredictor\league_BE\static_data" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\joshu_rdnqgbx\Documents\lolLiveScorePredictor\league_BE\tb_data_project" />
+      <recent name="C:\Users\joshu_rdnqgbx\Documents\lolLiveScorePredictor\league_BE\tiny_bird_interface\api" />
+      <recent name="C:\Users\joshu_rdnqgbx\Documents\lolLiveScorePredictor\league_BE\static_data\raw_data" />
+      <recent name="C:\Users\joshu_rdnqgbx\Documents\lolLiveScorePredictor\league_BE\static_data" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.fetch_live_data">
+    <configuration name="clean_up_tb" type="PythonConfigurationType" factoryName="Python">
+      <module name="league_BE" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="C:\Users\joshu\anaconda3\envs\predictorEnv" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tiny_bird_interface/api/clean_up_tb.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="fetch_live_data" type="PythonConfigurationType" factoryName="Python">
+      <module name="league_BE" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="C:\Users\joshu\anaconda3\envs\predictorEnv" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/fetch_live_data.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.fetch_live_data" />
+      <item itemvalue="Python.clean_up_tb" />
+    </list>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-0e3be3396995-c546a90a8094-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-242.23339.19" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e13b8ed6-7898-4c87-ae74-b7fdf27b058e" name="Changes" comment="" />
+      <created>1728678221820</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1728678221820</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Updated gitignore">
+      <option name="closed" value="true" />
+      <created>1728679167742</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1728679167742</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Updated gitignore">
+      <option name="closed" value="true" />
+      <created>1728679256429</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1728679256429</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Pushing some data to tiny_bird, with bugs">
+      <option name="closed" value="true" />
+      <created>1728724829241</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1728724829241</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Pushes live data to tiny_bird, will delete old data source when starting">
+      <option name="closed" value="true" />
+      <created>1728742747972</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1728742747972</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Pipe and endpoint now created for ingestion.">
+      <option name="closed" value="true" />
+      <created>1728764671189</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1728764671189</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Pipe and endpoint now created for ingestion.">
+      <option name="closed" value="true" />
+      <created>1728764722607</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1728764722607</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Cleanup pipes and datasources after a run">
+      <option name="closed" value="true" />
+      <created>1728822370190</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1728822370190</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Fixed bug with not getting a node">
+      <option name="closed" value="true" />
+      <created>1728823546452</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1728823546452</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
+    <servers />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName=".env" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Updated gitignore" />
+    <MESSAGE value="Pushing some data to tiny_bird, with bugs" />
+    <MESSAGE value="Pushes live data to tiny_bird, will delete old data source when starting" />
+    <MESSAGE value="Pipe and endpoint now created for ingestion." />
+    <MESSAGE value="Cleanup pipes and datasources after a run" />
+    <MESSAGE value="Fixed bug with not getting a node" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed bug with not getting a node" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tiny_bird_interface/api/data_pipe.py</url>
+          <line>50</line>
+          <option name="timeStamp" value="21" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
